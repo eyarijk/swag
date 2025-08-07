@@ -23,7 +23,7 @@ func TestParseGlobalEnums(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, string(expected), string(b))
 
-	constsPath := "github.com/swaggo/swag/testdata/enums/consts"
+	constsPath := "github.com/eyarijk/swag/testdata/enums/consts"
 	assert.Equal(t, bits.UintSize, p.packages.packages[constsPath].ConstTable["uintSize"].Value)
 	assert.Equal(t, int32(62), p.packages.packages[constsPath].ConstTable["maxBase"].Value)
 	assert.Equal(t, 8, p.packages.packages[constsPath].ConstTable["shlByLen"].Value)
@@ -34,7 +34,7 @@ func TestParseGlobalEnums(t *testing.T) {
 	assert.Equal(t, 1_000_000, p.packages.packages[constsPath].ConstTable["underscored"].Value)
 	assert.Equal(t, 0b10001000, p.packages.packages[constsPath].ConstTable["binaryInteger"].Value)
 
-	typesPath := "github.com/swaggo/swag/testdata/enums/types"
+	typesPath := "github.com/eyarijk/swag/testdata/enums/types"
 
 	difficultyEnums := p.packages.packages[typesPath].TypeDefinitions["Difficulty"].Enums
 	assert.Equal(t, "Easy", difficultyEnums[0].key)
