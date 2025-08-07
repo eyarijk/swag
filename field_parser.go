@@ -294,8 +294,10 @@ func (ps *tagBaseFieldParser) complementSchema(schema *spec.Schema, types []stri
 	}
 
 	validateTagValue := ps.tag.Get(validateTag)
+
+	validationExtensions := make(map[string]interface{})
 	if validateTagValue != "" {
-		parseValidTags(validateTagValue, field)
+		validationExtensions = parseValidTags(validateTagValue, field)
 	}
 
 	enumsTagValue := ps.tag.Get(enumsTag)
@@ -427,6 +429,10 @@ func (ps *tagBaseFieldParser) complementSchema(schema *spec.Schema, types []stri
 		schema.Extensions = setExtensionParam(extensionsTagValue)
 	}
 
+	for k, v := range validationExtensions {
+		schema.AddExtension(fmt.Sprintf("x-%s", k), v)
+	}
+
 	varNamesTag := ps.tag.Get("x-enum-varnames")
 	if varNamesTag != "" {
 		varNames := strings.Split(varNamesTag, ",")
@@ -546,9 +552,11 @@ func (ps *tagBaseFieldParser) IsRequired() (bool, error) {
 	return ps.p.RequiredByDefault, nil
 }
 
-func parseValidTags(validTag string, sf *structField) {
+func parseValidTags(validTag string, sf *structField) map[string]interface{} {
 	// `validate:"required,max=10,min=1"`
 	// ps. required checked by IsRequired().
+	extensions := make(map[string]interface{})
+
 	for _, val := range strings.Split(validTag, ",") {
 		var (
 			valValue string
@@ -576,11 +584,21 @@ func parseValidTags(validTag string, sf *structField) {
 			}
 		case "dive":
 			// ignore dive
-			return
-		default:
+			return extensions
+		case "required":
+		case "optional":
+		case "omitempty":
 			continue
+		default:
+			if valValue == "" {
+				extensions[keyVal[0]] = true
+			} else {
+				extensions[keyVal[0]] = valValue
+			}
 		}
 	}
+
+	return extensions
 }
 
 func parseEnumTags(enumTag string, field *structField) error {
